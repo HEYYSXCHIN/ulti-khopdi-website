@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ulti Khopdi's Immersive World</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #1e1e2f, #2a2a4a);
+            color: #fff;
+            overflow-x: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        .blur-lock {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: all 0.5s ease;
+        }
+        .blur-lock.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .lock-input {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+        }
+        .error-msg {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-size: 16px;
+            display: none;
+        }
+        .section {
+            padding: 50px;
+            min-height: 100vh;
+            display: none;
+            opacity: 0;
+        }
+        .section.active {
+            display: block;
+            animation: fadeIn 1s forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .soundwave {
+            width: 100px;
+            height: 20px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+            animation: wave 1s infinite;
+        }
+        @keyframes wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.5); }
+        }
+        .gallery img {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+            margin: 10px;
+            transition: transform 0.3s;
+        }
+        .gallery img:hover {
+            transform: scale(1.1);
+        }
+        .sticky-note {
+            position: absolute;
+            background: #ffeb3b;
+            padding: 20px;
+            width: 200px;
+            height: 200px;
+            transform: rotate(5deg);
+            transition: transform 0.3s;
+        }
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.05);
+        }
+        .anime-card {
+            position: absolute;
+            width: 150px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .anime-card:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #ff6b6b;
+        }
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            z-index: 1001;
+        }
+        .popup.active {
+            display: block;
+        }
+        @media (max-width: 768px) {
+            .section {
+                padding: 20px;
+            }
+            .gallery img {
+                width: 150px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Blur Lock -->
+    <div class="blur-lock">
+        <div>
+            <input type="text" class="lock-input" placeholder="Enter Name">
+            <p class="error-msg"></p>
+        </div>
+    </div>
+
+    <!-- Main Sections -->
+    <div class="section active" id="home">
+        <h1>Welcome, Ulti Khopdi!</h1>
+        <div class="music-player">
+            <h3>Music Player</h3>
+            <div class="soundwave"></div>
+            <p id="current-song">Song 1</p>
+        </div>
+    </div>
+
+    <div class="section" id="secret-locker">
+        <h2>Secret Locker</h2>
+        <input type="password" id="locker-pass" placeholder="Enter Passcode">
+        <p class="error-msg"></p>
+        <div id="locker-content" style="display: none;">
+            <p>Private Notes, Chats, Photos Here!</p>
+        </div>
+    </div>
+
+    <div class="section" id="gallery">
+        <h2>Memory Gallery</h2>
+        <div class="gallery">
+            <img src="https://via.placeholder.com/200x150" alt="Memory 1">
+            <img src="https://via.placeholder.com/200x150" alt="Memory 2">
+        </div>
+        <button id="add-memory">Add Memory</button>
+    </div>
+
+    <div class="section" id="notes">
+        <h2>Handwritten Notes</h2>
+        <div class="sticky-note" contenteditable="true">Write here...</div>
+    </div>
+
+    <div class="section" id="anime-world">
+        <h2>Anime Universe</h2>
+        <p id="anime-text"></p>
+        <div class="anime-card" style="top: 20%; left: 20%;"></div>
+        <div class="anime-card" style="top: 40%; left: 60%;"></div>
+    </div>
+
+    <!-- Popups -->
+    <div class="popup" id="period-popup">
+        <h3>Kya period start ho gaye?</h3>
+        <button id="yes-btn">Haan</button>
+        <button id="no-btn">Nahi</button>
+    </div>
+
+    <div class="popup" id="quote-popup">
+        <p>"Dost wo hai jo tujhe dustbin bhi bole aur pyar bhi!"</p>
+    </div>
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script>
+        const correctName = "Ulti Khopdi";
+        const correctPass = "1234";
+        const songs = ["Song 1", "Song 2", "Song 3"];
+        let songIndex = 0;
+
+        // Blur Lock Logic
+        const lockInput = document.querySelector(".lock-input");
+        const blurLock = document.querySelector(".blur-lock");
+        const errorMsg = document.querySelector(".blur-lock .error-msg");
+
+        lockInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                if (lockInput.value === correctName) {
+                    gsap.to(blurLock, { opacity: 0, duration: 1, onComplete: () => blurLock.classList.add("hidden") });
+                } else {
+                    errorMsg.style.display = "block";
+                    errorMsg.textContent = "Galat naam, Dustbin Khopdi! 😂";
+                    setTimeout(() => errorMsg.style.display = "none", 2000);
+                }
+            }
+        });
+
+        // Music Player Swipe
+        let touchStartX = 0;
+        document.querySelector(".music-player").addEventListener("touchstart", (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+        document.querySelector(".music-player").addEventListener("touchend", (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            if (touchStartX - touchEndX > 50) {
+                songIndex = (songIndex + 1) % songs.length;
+                document.getElementById("current-song").textContent = songs[songIndex];
+            }
+        });
+
+        // Secret Locker
+        const lockerPass = document.getElementById("locker-pass");
+        const lockerError = document.querySelector("#secret-locker .error-msg");
+        const lockerContent = document.getElementById("locker-content");
+
+        lockerPass.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                if (lockerPass.value === correctPass) {
+                    lockerContent.style.display = "block";
+                    gsap.to(lockerContent, { opacity: 1, duration: 1 });
+                    // Confetti effect (simplified)
+                    for (let i = 0; i < 50; i++) {
+                        const confetti = document.createElement("div");
+                        confetti.style.position = "absolute";
+                        confetti.style.width = "10px";
+                        confetti.style.height = "10px";
+                        confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        confetti.style.left = `${Math.random() * 100}vw`;
+                        confetti.style.top = "-10px";
+                        document.body.appendChild(confetti);
+                        gsap.to(confetti, { y: "100vh", duration: 2, onComplete: () => confetti.remove() });
+                    }
+                } else {
+                    lockerError.style.display = "block";
+                    lockerError.textContent = "Passcode galat hai, try harder! 😂";
+                    setTimeout(() => lockerError.style.display = "none", 2000);
+                }
+            }
+        });
+
+        // Gallery Auto-Slideshow
+        const galleryImages = document.querySelectorAll(".gallery img");
+        let currentImage = 0;
+        setInterval(() => {
+            galleryImages[currentImage].style.opacity = 0;
+            currentImage = (currentImage + 1) % galleryImages.length;
+            galleryImages[currentImage].style.opacity = 1;
+        }, 3000);
+
+        // Anime World Text
+        new Typed("#anime-text", {
+            strings: ["Welcome to the Anime Universe, Dustbin Khopdi 🚮!"],
+            typeSpeed: 50,
+            showCursor: false
+        });
+
+        // Period Capsule Reminder
+        const today = new Date();
+        const date = today.getDate();
+        const periodPopup = document.getElementById("period-popup");
+        if (date >= 28 || date <= 3) {
+            periodPopup.classList.add("active");
+        }
+        document.getElementById("yes-btn").addEventListener("click", () => {
+            periodPopup.innerHTML = "<h3>Health Tips</h3><p>Rest, hydrate, and pamper yourself!</p>";
+            setTimeout(() => periodPopup.classList.remove("active"), 3000);
+        });
+        document.getElementById("no-btn").addEventListener("click", () => periodPopup.classList.remove("active"));
+
+        // Random Friendship Quotes
+        const quotes = ["Dost wo hai jo tujhe dustbin bhi bole aur pyar bhi!", "True friends are like stars!"];
+        setInterval(() => {
+            const quotePopup = document.getElementById("quote-popup");
+            quotePopup.querySelector("p").textContent = quotes[Math.floor(Math.random() * quotes.length)];
+            quotePopup.classList.add("active");
+            setTimeout(() => quotePopup.classList.remove("active"), 3000);
+        }, 10000);
+    </script>
+</body>
+  </html>
